@@ -53,7 +53,9 @@ public class ArtistsListAdapter extends RecyclerView.Adapter<ArtistsListAdapter.
                     imageUrl = im.url;
                 }
             }
-            Picasso.with(context).load(imageUrl).into(holder.imageView);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Picasso.with(context).load(imageUrl).into(holder.imageView);
+            }
         }
     }
 

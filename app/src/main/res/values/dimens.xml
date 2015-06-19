@@ -1,5 +1,14 @@
 <resources>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--Item list of Artists and Tracks-->
+    <dimen name="item_list_image">100dp</dimen>
+    <dimen name="item_padding">20dp</dimen>
+    <dimen name="item_margin">10dp</dimen>
+    <dimen name="item_font_size_title">18sp</dimen>
+    <dimen name="item_font_size_subtitle">16sp</dimen>
+
 </resources>

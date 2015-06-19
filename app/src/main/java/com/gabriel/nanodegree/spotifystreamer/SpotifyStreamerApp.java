@@ -1,6 +1,8 @@
 package com.gabriel.nanodegree.spotifystreamer;
 
 import android.app.Application;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,5 +24,11 @@ public class SpotifyStreamerApp extends Application {
         trackList = new ArrayList<Track>(0);
         artistList = new ArrayList<Artist>(0);
 
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

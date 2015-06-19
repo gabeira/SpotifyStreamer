@@ -48,12 +48,14 @@ public class TracksListAdapter extends RecyclerView.Adapter<TracksListAdapter.My
 
         if (currentItem.album.images.size()>0) {
             String imageUrl = currentItem.album.images.get(0).url;
-            for (Image im:currentItem.album.images) {
-                if(im.width >= 200 && im.width <= 300){
+            for (Image im : currentItem.album.images) {
+                if (im.width >= 200 && im.width <= 300) {
                     imageUrl = im.url;
                 }
             }
-            Picasso.with(context).load(imageUrl).into(holder.imageView);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Picasso.with(context).load(imageUrl).into(holder.imageView);
+            }
         }
     }
 

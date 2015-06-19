@@ -68,9 +68,13 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
         searchArtist.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchArtist.clearFocus();
-                progress.show();
-                new SpotifyArtistsTask(ArtistsFragment.this).execute(query, country_key);
+                if (app.isOnline()) {
+                    searchArtist.clearFocus();
+                    progress.show();
+                    new SpotifyArtistsTask(ArtistsFragment.this).execute(query, country_key);
+                }else{
+                    Toast.makeText(getActivity(),getString(R.string.network_not_available),Toast.LENGTH_LONG).show();
+                }
                 return false;
             }
 
@@ -102,8 +106,10 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
         if (app.artistList.size()>0){
             adapter.updateList(app.artistList);
         }else if(adapter.getItemCount()<1) {
-            new SpotifyArtistsTask(ArtistsFragment.this).execute("*a*",country_key);
-            progress.show();
+            if (app.isOnline()) {
+                new SpotifyArtistsTask(ArtistsFragment.this).execute("*a*", country_key);
+                progress.show();
+            }
         }
     }
 

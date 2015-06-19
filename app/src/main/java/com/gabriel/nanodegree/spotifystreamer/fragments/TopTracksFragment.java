@@ -92,9 +92,13 @@ public class TopTracksFragment
         adapter.setClickListener(this);
 
         if (getArguments() != null && loadRequired) {
-            new SpotifyTracksTask(TopTracksFragment.this).execute(mParamArtistId, country_key);
-            progress.show();
-            loadRequired=false;
+            if (app.isOnline()) {
+                progress.show();
+                new SpotifyTracksTask(TopTracksFragment.this).execute(mParamArtistId, country_key);
+                loadRequired=false;
+            }else{
+                Toast.makeText(getActivity(),getString(R.string.network_not_available),Toast.LENGTH_LONG).show();
+            }
         }else if (app.trackList.size()>0) {
             adapter.updateList(app.trackList);
         }
