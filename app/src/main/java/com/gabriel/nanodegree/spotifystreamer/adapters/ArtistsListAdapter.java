@@ -1,6 +1,7 @@
 package com.gabriel.nanodegree.spotifystreamer.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,12 +74,15 @@ public class ArtistsListAdapter extends RecyclerView.Adapter<ArtistsListAdapter.
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        View parentView;
         TextView artistView;
         ImageView imageView;
 
         public MyViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
+            v.setClickable(true);
+            parentView = v;
             artistView = (TextView) v.findViewById(R.id.title);
             imageView = (ImageView) v.findViewById(R.id.image);
         }
@@ -87,6 +91,8 @@ public class ArtistsListAdapter extends RecyclerView.Adapter<ArtistsListAdapter.
         public void onClick(View v) {
             if (clickListener != null){
                 clickListener.itemClicked(v,getPosition());
+                parentView.setSelected(true);
+//                parentView.setBackgroundColor(Color.GREEN);
             }
         }
     }

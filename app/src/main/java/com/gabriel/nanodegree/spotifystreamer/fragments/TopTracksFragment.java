@@ -1,5 +1,6 @@
 package com.gabriel.nanodegree.spotifystreamer.fragments;
 
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,6 +47,10 @@ public class TopTracksFragment
 
     private boolean loadRequired = true;
 
+    public interface Callback {
+        void onTrackSelected(Track trackSelected);
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -74,8 +79,7 @@ public class TopTracksFragment
         if (mParamArtistName != null && !mParamArtistName.isEmpty()) {
             ((ActionBarActivity)getActivity()).getSupportActionBar().setSubtitle(mParamArtistName);
         }
-        progress = new ProgressDialog(this.getActivity());
-        progress.setMessage(getString(R.string.loading));
+        progress = new ProgressDialog(getActivity(), DialogFragment.STYLE_NO_TITLE);
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         country_key = sharedPrefs.getString(
@@ -102,7 +106,12 @@ public class TopTracksFragment
         }else if (app.trackList.size()>0) {
             adapter.updateList(app.trackList);
         }
-        ((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        try {
+            if (!app.mIsLargeLayout)
+                ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }catch (NullPointerException ex){}
+
         return v;
     }
 
@@ -121,23 +130,18 @@ public class TopTracksFragment
     @Override
     public void onDetach() {
         super.onDetach();
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(null);
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        try {
+            ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(null);
+            ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        } catch (NullPointerException ex) {
+        }
     }
 
     @Override
     public void itemClicked(View view, int position) {
-        Track currentItem = adapter.getItem(position);
-        PlayerFragment playerFragment = PlayerFragment.newInstance(
-                currentItem.album.name ,
-                currentItem.name,
-                currentItem.album.images.get(0).url,
-                currentItem.preview_url);
-
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, playerFragment, Constants.PLAYER_FRAGMENT_TAG)
-                .addToBackStack(Constants.PLAYER_FRAGMENT_TAG)
-                .commit();
+        if (adapter.getItemCount() >= position) {
+            ((Callback) getActivity()).onTrackSelected(adapter.getItem(position));
+        }
     }
 
     @Override

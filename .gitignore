@@ -5,3 +5,9 @@
 .DS_Store
 /build
 /captures
+
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/

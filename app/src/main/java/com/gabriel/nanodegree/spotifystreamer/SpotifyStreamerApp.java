@@ -17,10 +17,12 @@ public class SpotifyStreamerApp extends Application {
 
     public List<Track> trackList;
     public List<Artist> artistList;
+    public boolean mIsLargeLayout;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
         trackList = new ArrayList<Track>(0);
         artistList = new ArrayList<Artist>(0);
 

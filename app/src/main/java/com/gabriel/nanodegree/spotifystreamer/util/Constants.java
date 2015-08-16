@@ -15,6 +15,7 @@ public class Constants {
 
     //Player parameters
     public static final String PLAYER_FRAGMENT_TAG = "player_fragment";
+    public static final String ARTIST_NAME_KEY = "artistname";
     public static final String ALBUM_NAME_KEY = "albumname";
     public static final String TRACK_NAME_KEY = "trackname";
     public static final String TRACK_IMAGE_URL = "trackimageurl";
