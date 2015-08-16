@@ -1,8 +1,9 @@
 package com.gabriel.nanodegree.spotifystreamer.fragments;
 
-
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -19,7 +20,6 @@ import com.gabriel.nanodegree.spotifystreamer.R;
 import com.gabriel.nanodegree.spotifystreamer.SpotifyStreamerApp;
 import com.gabriel.nanodegree.spotifystreamer.adapters.ArtistsListAdapter;
 import com.gabriel.nanodegree.spotifystreamer.tasks.SpotifyArtistsTask;
-import com.gabriel.nanodegree.spotifystreamer.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,10 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
     private SpotifyStreamerApp app;
     private String country_key;
 
+    public interface Callback {
+        void onArtistSelected(Artist artistSelected);
+    }
+
     public static ArtistsFragment newInstance() {
         ArtistsFragment fragment = new ArtistsFragment();
         return fragment;
@@ -54,8 +58,7 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_artists, container, false);
 
-        progress = new ProgressDialog(getActivity());
-        progress.setMessage(getString(R.string.loading));
+        progress = new ProgressDialog(getActivity(), DialogFragment.STYLE_NO_TITLE);
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         country_key = sharedPrefs.getString(
@@ -90,6 +93,7 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         adapter.setClickListener(this);
+        recyclerView.scrollToPosition(adapter.getItemCount()-1);
         return v;
     }
 
@@ -105,11 +109,12 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
         super.onStart();
         if (app.artistList.size()>0){
             adapter.updateList(app.artistList);
-        }else if(adapter.getItemCount()<1) {
-            if (app.isOnline()) {
-                new SpotifyArtistsTask(ArtistsFragment.this).execute("*a*", country_key);
-                progress.show();
-            }
+
+            //Else if, it is on Debuggable Mode search for artists with "a"
+        }else if(app.isOnline()
+                && (0 != (getActivity().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE))) {
+            new SpotifyArtistsTask(ArtistsFragment.this).execute("*a*", country_key);
+            progress.show();
         }
     }
 
@@ -130,12 +135,8 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
     @Override
     public void itemClicked(View view, int position) {
         searchArtist.clearFocus();
-        if (adapter.getItemCount()>=position) {
-            TopTracksFragment topTracksFragment = TopTracksFragment.newInstance(adapter.getItem(position).name ,adapter.getItem(position).id);
-            getActivity().getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, topTracksFragment, Constants.TOPTRACKS_FRAGMENT_TAG)
-                        .addToBackStack(Constants.TOPTRACKS_FRAGMENT_TAG)
-                        .commit();
+        if (adapter.getItemCount() >= position) {
+            ((Callback) getActivity()).onArtistSelected(adapter.getItem(position));
         }
     }
 }

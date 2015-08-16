@@ -6,7 +6,6 @@
 
     <string name="title_activity_player">Player</string>
 
-    <string name="loading">Loading...</string>
     <string name="search_artist_name">Search for an Artist Name here</string>
 
     <string name="artist_not_found">Artist Not Found, please change the query!</string>
