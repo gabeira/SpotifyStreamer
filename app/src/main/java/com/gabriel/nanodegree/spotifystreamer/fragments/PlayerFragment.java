@@ -1,15 +1,28 @@
 package com.gabriel.nanodegree.spotifystreamer.fragments;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.gabriel.nanodegree.spotifystreamer.MainActivity;
 import com.gabriel.nanodegree.spotifystreamer.SpotifyStreamerApp;
 import com.gabriel.nanodegree.spotifystreamer.util.Constants;
 import com.squareup.picasso.Picasso;
@@ -45,7 +59,11 @@ public class PlayerFragment extends DialogFragment {
     private SpotifyStreamerApp app;
     private int trackListPosition;
     private ProgressDialog mProgress;
+    private ShareActionProvider mShareActionProvider;
 
+    private static final String MUSIC_SHARE_HASHTAG = " #SpotifyStreamerApp shared music ";
+
+    private static final int PLAYER_NOTIFICATION_ID = 123;
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -146,11 +164,11 @@ public class PlayerFragment extends DialogFragment {
         });
         mNextButton = (Button) v.findViewById(R.id.next);
         mNextButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    nextMusic();
-                }
-            });
+            @Override
+            public void onClick(View v) {
+                nextMusic();
+            }
+        });
         setupMusic(app.trackList.get(trackListPosition));
         return v;
     }
@@ -225,6 +243,7 @@ public class PlayerFragment extends DialogFragment {
             mSeekBar.setMax(mMediaPlayer.getDuration());
             mTimeEnd.setText("" + new SimpleDateFormat("m:ss").format(new Date(mMediaPlayer.getDuration())));
             myHandler.postDelayed(UpdateSongTime, 100);
+            showNotification();
         } catch (Exception e) {
             Log.e(TAG, "Play Music Error: "+e.getLocalizedMessage());
         }
@@ -255,5 +274,86 @@ public class PlayerFragment extends DialogFragment {
             mMediaPlayer = null;
         }
         super.onDestroy();
+    }
+
+    private void showNotification(){
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if(sharedPrefs.getBoolean(getString(R.string.pref_notification_key),true)) {
+
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            PendingIntent pIntent = PendingIntent.getActivity(getActivity(), 0, intent, 0);
+            //TODO Implement service with comands to control by notification
+
+            NotificationCompat.Builder mBuilder = null;
+            try {
+                mBuilder = new NotificationCompat.Builder(getActivity())
+                        .setColor(getActivity().getResources().getColor(R.color.spotify_green))
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        //TODO Fix image loading
+//                        .setLargeIcon(Picasso.with(getActivity()).load(app.trackList.get(trackListPosition).album.images.get(0).url).get())
+                        .addAction(android.R.drawable.ic_media_previous, "prev", pIntent)
+                        .addAction(android.R.drawable.ic_media_play, "play", pIntent)
+                        .addAction(android.R.drawable.ic_media_next,"next",pIntent)
+                        .setContentTitle("Playing " + app.trackList.get(trackListPosition).name)
+                        .setContentText("" + app.trackList.get(trackListPosition).artists.get(0).name + " " + app.trackList.get(trackListPosition).album.name);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Intent resultIntent = new Intent(getActivity(), MainActivity.class);
+
+            // The stack builder object will contain an artificial back stack for the started Activity.
+            // This ensures that navigating backward from the Activity leads out of your application to the Home screen.
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            // PLAYER_NOTIFICATION_ID allows you to update the notification later on.
+            mNotificationManager.notify(PLAYER_NOTIFICATION_ID, mBuilder.build());
+            Log.d(TAG, "Notify Music ");
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_player, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        if (null != mShareActionProvider ){
+            mShareActionProvider.setShareIntent(createShareForecastIntent());
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, MUSIC_SHARE_HASHTAG+
+                app.trackList.get(trackListPosition).external_urls.get("spotify"));
+        return shareIntent;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_share) {
+            startActivity(createShareForecastIntent());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

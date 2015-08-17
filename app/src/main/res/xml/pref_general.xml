@@ -10,4 +10,9 @@
         android:singleLine="true"
         android:title="@string/pref_country_label" />
 
+    <CheckBoxPreference
+        android:key="@string/pref_notification_key"
+        android:title="@string/pref_notification_label"
+        android:defaultValue="true"/>
+
 </PreferenceScreen>

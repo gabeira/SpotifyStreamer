@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="spotify_light_green">#8bc34a</color>
+    <color name="spotify_green">#4fa51c</color>
+    <color name="spotify_dark_green">#00aa44</color>
+
+</resources>
