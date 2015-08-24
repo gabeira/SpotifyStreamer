@@ -15,10 +15,10 @@ public class Constants {
 
     //Player parameters
     public static final String PLAYER_FRAGMENT_TAG = "player_fragment";
-    public static final String ARTIST_NAME_KEY = "artistname";
-    public static final String ALBUM_NAME_KEY = "albumname";
-    public static final String TRACK_NAME_KEY = "trackname";
-    public static final String TRACK_IMAGE_URL = "trackimageurl";
-    public static final String TRACK_PREVIEW_URL = "previewurl";
+    public static final int PLAYER_LOADING = 1;
+    public static final int PLAYER_READYTOPLAY = 0;
+    public static final int PLAYER_FINISHED = 2;
+    public static final int PLAYER_PAUSED = 3;
+    public static final String BROADCAST_STATUS = "broadcast_status";
 
 }

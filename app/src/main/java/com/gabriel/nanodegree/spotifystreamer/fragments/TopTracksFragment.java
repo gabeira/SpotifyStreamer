@@ -48,7 +48,7 @@ public class TopTracksFragment
     private boolean loadRequired = true;
 
     public interface Callback {
-        void onTrackSelected(Track trackSelected);
+        void onTrackSelected(int trackSelectedPosition);
     }
 
     /**
@@ -140,7 +140,7 @@ public class TopTracksFragment
     @Override
     public void itemClicked(View view, int position) {
         if (adapter.getItemCount() >= position) {
-            ((Callback) getActivity()).onTrackSelected(adapter.getItem(position));
+            ((Callback) getActivity()).onTrackSelected(position);
         }
     }
 

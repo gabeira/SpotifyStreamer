@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.gabriel.nanodegree.spotifystreamer.fragments.ArtistsFragment;
 import com.gabriel.nanodegree.spotifystreamer.fragments.PlayerFragment;
@@ -12,13 +13,14 @@ import com.gabriel.nanodegree.spotifystreamer.fragments.TopTracksFragment;
 import com.gabriel.nanodegree.spotifystreamer.util.Constants;
 
 import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.Track;
 
 public class MainActivity extends ActionBarActivity implements ArtistsFragment.Callback, TopTracksFragment.Callback{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     boolean mIsLargeLayout;
+    TopTracksFragment topTracksFragment;
+    PlayerFragment playerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +58,19 @@ public class MainActivity extends ActionBarActivity implements ArtistsFragment.C
             getSupportFragmentManager().popBackStack();
             return true;
         }
+        if (id == R.id.action_open_player) {
+            if (((SpotifyStreamerApp)getApplication()).getCurrentTrack() != null)
+                openPlayer(false);
+            else
+                Toast.makeText(getApplicationContext(),getString(R.string.select_track_first),Toast.LENGTH_LONG).show();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onArtistSelected(Artist artistSelected) {
-        TopTracksFragment topTracksFragment = TopTracksFragment.newInstance(artistSelected.name ,artistSelected.id);
+        topTracksFragment = TopTracksFragment.newInstance(artistSelected.name ,artistSelected.id);
         if (mIsLargeLayout) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container2, topTracksFragment, Constants.TOPTRACKS_FRAGMENT_TAG)
@@ -75,20 +84,23 @@ public class MainActivity extends ActionBarActivity implements ArtistsFragment.C
     }
 
     @Override
-    public void onTrackSelected(Track trackSelected) {
-        PlayerFragment playerFragment = PlayerFragment.newInstance(
-                trackSelected.artists.get(0).name ,
-                trackSelected.album.name ,
-                trackSelected.name,
-                trackSelected.album.images.get(0).url,
-                trackSelected.preview_url);
+    public void onTrackSelected(int trackSelectedPosition) {
+        ((SpotifyStreamerApp)getApplication()).setTrackSelectedPosition(trackSelectedPosition);
+        openPlayer(true);
+    }
+
+    public void openPlayer(boolean selectedFromList) {
+        playerFragment = PlayerFragment.getInstance();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("selectedFromList", selectedFromList);
+        playerFragment.setArguments(bundle);
         if (mIsLargeLayout) {
             playerFragment.show(getSupportFragmentManager(), "dialog");
         }else {
             getSupportFragmentManager().beginTransaction()
-                .add(R.id.container1, playerFragment, Constants.PLAYER_FRAGMENT_TAG)
-                .addToBackStack(Constants.PLAYER_FRAGMENT_TAG)
-                .commit();
+                    .add(R.id.container1, playerFragment, Constants.PLAYER_FRAGMENT_TAG)
+                    .addToBackStack(Constants.PLAYER_FRAGMENT_TAG)
+                    .commit();
         }
     }
 }

@@ -3,6 +3,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
+    <string name="action_open_player">Player</string>
     <string name="title_activity_top_tracks">Top 10 Tracks</string>
 
     <string name="title_activity_player">Player</string>
@@ -23,5 +24,6 @@
 
 
     <string name="network_not_available">Network connectivity not available, try again later!</string>
+    <string name="select_track_first">Please select one Artist and Track first!</string>
 
 </resources>
