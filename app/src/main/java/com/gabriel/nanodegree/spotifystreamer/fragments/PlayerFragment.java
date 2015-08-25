@@ -75,7 +75,6 @@ public class PlayerFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         app = (SpotifyStreamerApp) getActivity().getApplication();
         setHasOptionsMenu(true);
-        setRetainInstance(true);
         try {
             if (!app.mIsLargeLayout && null != ((ActionBarActivity) getActivity()).getSupportActionBar())
                 ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -157,9 +156,11 @@ public class PlayerFragment extends DialogFragment {
             serviceIntent = new Intent(getActivity(), PlayerService.class);
         serviceIntent.setAction("PLAY");
         if (getArguments().getBoolean("selectedFromList",true)) {
-            getActivity().startService(serviceIntent);
-            if (savedInstanceState != null)
+            if (savedInstanceState != null) {
                 updateTrackInfo();
+            }else {
+                getActivity().startService(serviceIntent);
+            }
         } else {
             updateTrackInfo();
         }
@@ -175,7 +176,7 @@ public class PlayerFragment extends DialogFragment {
         if (track.album.images.size() > 0 && track.album.images.get(0).url != null && !track.album.images.get(0).url.isEmpty()) {
             Picasso.with(this.getActivity()).load(track.album.images.get(0).url).into(mImageView);
         }
-
+        myHandler.postDelayed(UpdateSongTime, 100);
     }
 
     private BroadcastReceiver broadcastBufferReceiver = new BroadcastReceiver() {

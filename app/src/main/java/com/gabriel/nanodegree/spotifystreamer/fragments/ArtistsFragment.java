@@ -86,6 +86,7 @@ public class ArtistsFragment extends Fragment implements SpotifyArtistsTask.Dele
                 return false;
             }
         });
+        searchArtist.clearFocus();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.recycler_view);
         adapter = new ArtistsListAdapter(new ArrayList<Artist>(0),getActivity());
