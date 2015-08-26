@@ -308,6 +308,12 @@ public class PlayerService extends Service implements
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        stopSelf();
+    }
+
+    @Override
     public void onDestroy() {
         if (mMediaPlayer != null) {
             if (mMediaPlayer.isPlaying()) mMediaPlayer.stop();

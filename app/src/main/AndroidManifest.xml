@@ -41,7 +41,8 @@
         <service
             android:name=".services.PlayerService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false"
+            android:stopWithTask="false"/>
     </application>
 
 </manifest>
